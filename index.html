@@ -139,10 +139,10 @@
       <span class="small muted" style="align-self:center">Skenario uji:</span>
       <button class="chip" data-s="1">1 · Aman</button>
       <button class="chip" data-s="2">2 · Duplikasi MoA</button>
-      <button class="chip" data-s="3">3 · Ca + Organofosfat</button>
+      <button class="chip" data-s="3">3 · Ca + Fosfat</button>
       <button class="chip ghost" data-s="0">Kosongkan</button>
       <span class="small muted" style="align-self:center;margin-left:6px">Uji aturan lain:</span>
-      <button class="chip ghost" data-s="4">R2 · Ca + Fosfat</button>
+      <button class="chip ghost" data-s="4">R3 · Ca + Organofosfat</button>
       <button class="chip ghost" data-s="5">R4 · Tembaga + pupuk</button>
     </div>
     <div class="plist" id="plist"></div>
@@ -222,25 +222,25 @@
    ===================================================================== */
 const PRODUCTS = [
   { id:'agrimec',   nama:'Agrimec 18 EC',   jenis:'Insektisida/Akarisida', bahan:'Abamektin 18 g/l',
-    rentang:'0,25–1 ml/L', aktif:['abamektin'], kategori:'pestisida', moa:['IRAC-6'], formulasi:'EC', wales:'E', dosis:0.5, satuan:'ml', kemasan:100, harga:75000, hargaOk:true },
+    rentang:'0,25–1 ml/L', aktif:['abamektin'], kategori:'pestisida', moa:['IRAC-6'], formulasi:'EC', wales:'E', dosis:0.5, satuan:'ml', kemasan:250, harga:130000, hargaOk:true },
   { id:'mkp',       nama:'MKP Pak Tani',    jenis:'Pupuk Pembuahan', bahan:'P₂O₅ 52%, K₂O 34%',
-    rentang:'2–10 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'SG', wales:'W', dosis:2, satuan:'g', kemasan:1000, harga:45000, hargaOk:true, fosfat:true },
+    rentang:'2–10 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'SG', wales:'W', dosis:2, satuan:'g', kemasan:1000, harga:70000, hargaOk:true, fosfat:true },
   { id:'agristik',  nama:'Agristik 400 L',  jenis:'Perekat/Perata', bahan:'Alkilaril poliglikol eter 400 g/l',
-    rentang:'0,25–1 ml/L', aktif:[], kategori:'adjuvan', moa:[], formulasi:'SL', wales:'S', dosis:0.5, satuan:'ml', kemasan:500, harga:35000, hargaOk:true },
+    rentang:'0,25–1 ml/L', aktif:[], kategori:'adjuvan', moa:[], formulasi:'SL', wales:'S', dosis:0.5, satuan:'ml', kemasan:1000, harga:150000, hargaOk:true },
   { id:'antracol',  nama:'Antracol 70 WP',  jenis:'Fungisida Kontak', bahan:'Propineb 70%',
-    rentang:'1–4 g/L', aktif:['propineb'], kategori:'pestisida', moa:['FRAC-M3'], formulasi:'WP', wales:'W', dosis:2, satuan:'g', kemasan:250, harga:45000, hargaOk:true },
+    rentang:'1–4 g/L', aktif:['propineb'], kategori:'pestisida', moa:['FRAC-M3'], formulasi:'WP', wales:'W', dosis:2, satuan:'g', kemasan:1000, harga:50000, hargaOk:true },
   { id:'amistartop',nama:'Amistartop 325 SC',jenis:'Fungisida Sistemik', bahan:'Azoksistrobin 200 g/l + Difenokonazol 125 g/l',
-    rentang:'0,5–1 ml/L', aktif:['azoksistrobin','difenokonazol'], kategori:'pestisida', moa:['FRAC-11','FRAC-3'], formulasi:'SC', wales:'L', dosis:0.5, satuan:'ml', kemasan:100, harga:95000, hargaOk:true },
+    rentang:'0,5–1 ml/L', aktif:['azoksistrobin','difenokonazol'], kategori:'pestisida', moa:['FRAC-11','FRAC-3'], formulasi:'SC', wales:'L', dosis:0.5, satuan:'ml', kemasan:100, harga:120000, hargaOk:true },
   { id:'curacron',  nama:'Curacron 500 EC', jenis:'Insektisida Kontak', bahan:'Profenofos 500 g/l',
-    rentang:'1–2,25 ml/L', aktif:['profenofos'], golongan:'organofosfat', pekaBasa:true, kategori:'pestisida', moa:['IRAC-1B'], formulasi:'EC', wales:'E', dosis:1.5, satuan:'ml', kemasan:100, harga:55000, hargaOk:true },
+    rentang:'1–2,25 ml/L', aktif:['profenofos'], golongan:'organofosfat', pekaBasa:true, kategori:'pestisida', moa:['IRAC-1B'], formulasi:'EC', wales:'E', dosis:1.5, satuan:'ml', kemasan:500, harga:130000, hargaOk:true },
   { id:'demolish',  nama:'Demolish 18 EC',  jenis:'Insektisida/Akarisida', bahan:'Abamektin 18 g/l',
-    rentang:'0,5–2 ml/L', aktif:['abamektin'], kategori:'pestisida', moa:['IRAC-6'], formulasi:'EC', wales:'E', dosis:1, satuan:'ml', kemasan:100, harga:35000, hargaOk:true },
+    rentang:'0,5–2 ml/L', aktif:['abamektin'], kategori:'pestisida', moa:['IRAC-6'], formulasi:'EC', wales:'E', dosis:1, satuan:'ml', kemasan:100, harga:80000, hargaOk:true },
   { id:'kocide',    nama:'Kocide 54 WDG',   jenis:'Fungisida Tembaga', bahan:'Tembaga hidroksida 54%',
-    rentang:'1–3 g/L', aktif:['tembaga hidroksida'], kategori:'pestisida', moa:['FRAC-M1'], formulasi:'WG', wales:'W', dosis:2, satuan:'g', kemasan:200, harga:55000, hargaOk:true, tembaga:true },
+    rentang:'1–3 g/L', aktif:['tembaga hidroksida'], kategori:'pestisida', moa:['FRAC-M1'], formulasi:'WG', wales:'W', dosis:2, satuan:'g', kemasan:100, harga:120000, hargaOk:true, tembaga:true },
   { id:'calsib',    nama:'Calsi-B',         jenis:'Pupuk Kalsium + Boron', bahan:'CaCO₃ 90% + Boron',
-    rentang:'2–5 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'WP', wales:'W', dosis:2, satuan:'g', kemasan:500, harga:35000, hargaOk:true, kalsium:true },
+    rentang:'2–5 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'WP', wales:'W', dosis:2, satuan:'g', kemasan:1000, harga:30000, hargaOk:true, kalsium:true },
   { id:'gandasil',  nama:'Gandasil D',      jenis:'Pupuk Daun Vegetatif', bahan:'NPK (20-15-15) + unsur mikro',
-    rentang:'1–3 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'SG', wales:'W', dosis:2, satuan:'g', kemasan:500, harga:30000, hargaOk:true, fosfat:true },
+    rentang:'1–3 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'SG', wales:'W', dosis:2, satuan:'g', kemasan:500, harga:50000, hargaOk:true, fosfat:true },
 ];
 const BY_ID = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
 
@@ -281,7 +281,7 @@ const RULES = [
     sumber:'[3] Bultemeier dkk.',
     when:(a,b) => !!a.kalsium && !!b.fosfat,
     judul:() => 'BAHAYA FISIK: RISIKO ENDAPAN',
-    pesan:(a,b) => `Kalsium dari ${a.nama} bereaksi dengan fosfat dari ${b.nama} membentuk endapan yang tidak larut air. Nozel bisa tersumbat dan hara tidak terserap tanaman.`,
+    pesan:(a,b) => `Kalsium dari ${a.nama} dapat bereaksi dengan fosfat dari ${b.nama} dan membentuk endapan yang sukar larut. Nozel bisa tersumbat dan hara tidak terserap tanaman.`,
     solusi:(a) => `Jangan dicampur. Semprot ${a.nama} di hari terpisah.`,
     pisah:(a) => a, risiko:(a,b) => [a,b],
   },
@@ -343,7 +343,7 @@ function applyMode(){
 }
 const SCEN = {
   0:[], 1:['antracol','amistartop','agristik'], 2:['demolish','agrimec'],
-  3:['calsib','curacron'], 4:['calsib','mkp'], 5:['kocide','gandasil'],
+  3:['calsib','mkp'], 4:['calsib','curacron'], 5:['kocide','gandasil'],
 };
 
 /* ============================ UTIL ============================ */
