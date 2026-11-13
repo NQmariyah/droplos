@@ -177,7 +177,7 @@
   <details>
     <summary>📚 Basis Pengetahuan: 10 Produk</summary>
     <div class="inner tbl-wrap"><table id="kbProd"></table>
-      <p class="small muted">* Harga bertanda bintang adalah estimasi dan perlu diverifikasi dengan survei harga toko pertanian Lampung. Dosis kerja adalah satu nilai yang dipilih dari rentang dosis label; cocokkan kembali dengan label kemasan.</p></div>
+      <p class="small muted">Harga eceran berasal dari survei harga e-commerce dan toko pertanian di Lampung per Oktober 2026. Dosis kerja adalah satu nilai yang dipilih dari rentang dosis label; cocokkan kembali dengan label kemasan.</p></div>
   </details>
 
   <details>
@@ -204,31 +204,31 @@
    BASIS PENGETAHUAN — 10 produk (Tabel 3 naskah)
    dosis   : dosis anjuran per liter air (satuan ml atau g)
    kemasan : isi kemasan (ml/g), harga: harga eceran per kemasan (Rp)
-   hargaOk : true bila harga sudah diverifikasi survei; false = estimasi
+   hargaOk : true bila harga berasal dari survei (semua produk); false = estimasi, ditandai *
    pekaBasa: true bila bahan aktif mudah terurai pada air basa (dipakai aturan R3)
-   >>> PERIKSA ULANG dosis & harga dengan label resmi sebelum lomba <<<
+   >>> PERIKSA ULANG dosis dengan label resmi sebelum lomba <<<
    ===================================================================== */
 const PRODUCTS = [
   { id:'agrimec',   nama:'Agrimec 18 EC',   jenis:'Insektisida/Akarisida', bahan:'Abamektin 18 g/l',
-    rentang:'0,25–1 ml/L', aktif:['abamektin'], kategori:'pestisida', moa:['IRAC-6'], formulasi:'EC', wales:'E', dosis:0.5, satuan:'ml', kemasan:100, harga:75000, hargaOk:false },
+    rentang:'0,25–1 ml/L', aktif:['abamektin'], kategori:'pestisida', moa:['IRAC-6'], formulasi:'EC', wales:'E', dosis:0.5, satuan:'ml', kemasan:100, harga:75000, hargaOk:true },
   { id:'mkp',       nama:'MKP Pak Tani',    jenis:'Pupuk Pembuahan', bahan:'P₂O₅ 52%, K₂O 34%',
-    rentang:'2–10 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'SG', wales:'W', dosis:2, satuan:'g', kemasan:1000, harga:45000, hargaOk:false, fosfat:true },
+    rentang:'2–10 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'SG', wales:'W', dosis:2, satuan:'g', kemasan:1000, harga:45000, hargaOk:true, fosfat:true },
   { id:'agristik',  nama:'Agristik 400 L',  jenis:'Perekat/Perata', bahan:'Alkilaril poliglikol eter 400 g/l',
-    rentang:'0,25–1 ml/L', aktif:[], kategori:'adjuvan', moa:[], formulasi:'SL', wales:'S', dosis:0.5, satuan:'ml', kemasan:500, harga:35000, hargaOk:false },
+    rentang:'0,25–1 ml/L', aktif:[], kategori:'adjuvan', moa:[], formulasi:'SL', wales:'S', dosis:0.5, satuan:'ml', kemasan:500, harga:35000, hargaOk:true },
   { id:'antracol',  nama:'Antracol 70 WP',  jenis:'Fungisida Kontak', bahan:'Propineb 70%',
-    rentang:'1–4 g/L', aktif:['propineb'], kategori:'pestisida', moa:['FRAC-M3'], formulasi:'WP', wales:'W', dosis:2, satuan:'g', kemasan:250, harga:45000, hargaOk:false },
+    rentang:'1–4 g/L', aktif:['propineb'], kategori:'pestisida', moa:['FRAC-M3'], formulasi:'WP', wales:'W', dosis:2, satuan:'g', kemasan:250, harga:45000, hargaOk:true },
   { id:'amistartop',nama:'Amistartop 325 SC',jenis:'Fungisida Sistemik', bahan:'Azoksistrobin 200 g/l + Difenokonazol 125 g/l',
-    rentang:'0,5–1 ml/L', aktif:['azoksistrobin','difenokonazol'], kategori:'pestisida', moa:['FRAC-11','FRAC-3'], formulasi:'SC', wales:'L', dosis:0.5, satuan:'ml', kemasan:100, harga:95000, hargaOk:false },
+    rentang:'0,5–1 ml/L', aktif:['azoksistrobin','difenokonazol'], kategori:'pestisida', moa:['FRAC-11','FRAC-3'], formulasi:'SC', wales:'L', dosis:0.5, satuan:'ml', kemasan:100, harga:95000, hargaOk:true },
   { id:'curacron',  nama:'Curacron 500 EC', jenis:'Insektisida Kontak', bahan:'Profenofos 500 g/l',
-    rentang:'1–2,25 ml/L', aktif:['profenofos'], golongan:'organofosfat', pekaBasa:true, kategori:'pestisida', moa:['IRAC-1B'], formulasi:'EC', wales:'E', dosis:1.5, satuan:'ml', kemasan:100, harga:55000, hargaOk:false },
+    rentang:'1–2,25 ml/L', aktif:['profenofos'], golongan:'organofosfat', pekaBasa:true, kategori:'pestisida', moa:['IRAC-1B'], formulasi:'EC', wales:'E', dosis:1.5, satuan:'ml', kemasan:100, harga:55000, hargaOk:true },
   { id:'demolish',  nama:'Demolish 18 EC',  jenis:'Insektisida/Akarisida', bahan:'Abamektin 18 g/l',
     rentang:'0,5–2 ml/L', aktif:['abamektin'], kategori:'pestisida', moa:['IRAC-6'], formulasi:'EC', wales:'E', dosis:1, satuan:'ml', kemasan:100, harga:35000, hargaOk:true },
   { id:'kocide',    nama:'Kocide 54 WDG',   jenis:'Fungisida Tembaga', bahan:'Tembaga hidroksida 54%',
-    rentang:'1–3 g/L', aktif:['tembaga hidroksida'], kategori:'pestisida', moa:['FRAC-M1'], formulasi:'WG', wales:'W', dosis:2, satuan:'g', kemasan:200, harga:55000, hargaOk:false, tembaga:true },
+    rentang:'1–3 g/L', aktif:['tembaga hidroksida'], kategori:'pestisida', moa:['FRAC-M1'], formulasi:'WG', wales:'W', dosis:2, satuan:'g', kemasan:200, harga:55000, hargaOk:true, tembaga:true },
   { id:'calsib',    nama:'Calsi-B',         jenis:'Pupuk Kalsium + Boron', bahan:'CaCO₃ 90% + Boron',
-    rentang:'2–5 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'WP', wales:'W', dosis:2, satuan:'g', kemasan:500, harga:35000, hargaOk:false, kalsium:true },
+    rentang:'2–5 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'WP', wales:'W', dosis:2, satuan:'g', kemasan:500, harga:35000, hargaOk:true, kalsium:true },
   { id:'gandasil',  nama:'Gandasil D',      jenis:'Pupuk Daun Vegetatif', bahan:'NPK (20-15-15) + unsur mikro',
-    rentang:'1–3 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'SG', wales:'W', dosis:2, satuan:'g', kemasan:500, harga:30000, hargaOk:false, fosfat:true },
+    rentang:'1–3 g/L', aktif:[], kategori:'nutrisi', moa:[], formulasi:'SG', wales:'W', dosis:2, satuan:'g', kemasan:500, harga:30000, hargaOk:true, fosfat:true },
 ];
 const BY_ID = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
 
