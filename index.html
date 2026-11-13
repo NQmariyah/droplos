@@ -90,6 +90,13 @@
   input[type=range]{width:100%;accent-color:var(--brand)}
   footer{margin-top:22px;font-size:12px;color:var(--muted);text-align:center}
   .sep-card{border:1px dashed var(--bad);border-radius:12px;padding:10px;margin-top:8px}
+  .mode{margin-left:auto;display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card);flex:none}
+  .mode button{border:0;background:transparent;color:var(--muted);padding:7px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+  .mode button.on{background:var(--brand);color:#fff}
+  header.top{flex-wrap:wrap}
+  header.top > div:nth-child(2){flex:1 1 200px;min-width:0}
+  body.mode-petani .sim-only{display:none!important}
+  body.mode-simulasi .pet-only{display:none!important}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -101,6 +108,10 @@
     <div>
       <h1>DOKTER-OPLOS</h1>
       <p class="sub">Audit campuran tangki semprot &amp; takaran presisi — cabai &amp; tomat, Lampung</p>
+    </div>
+    <div class="mode" id="modeSeg" role="group" aria-label="Tampilan">
+      <button data-m="petani" title="Tampilan sederhana untuk dipakai di lahan">Petani</button>
+      <button data-m="simulasi" title="Tampilan lengkap untuk pengujian dan penjurian">Simulasi</button>
     </div>
   </header>
 
@@ -124,7 +135,7 @@
   <!-- 2. Pusat Audit Instan -->
   <section class="card">
     <h2><span class="num">2</span> Pilih Produk yang Akan Dicampur</h2>
-    <div class="scen">
+    <div class="scen sim-only">
       <span class="small muted" style="align-self:center">Skenario uji:</span>
       <button class="chip" data-s="1">1 · Aman</button>
       <button class="chip" data-s="2">2 · Duplikasi MoA</button>
@@ -143,12 +154,13 @@
   <section class="card" id="moneyCard" hidden>
     <h2>💰 Kerugian Finansial yang Dicegah</h2>
     <div class="metrics" id="metrics"></div>
-    <div style="margin-top:12px">
+    <p class="small muted pet-only" style="margin:10px 0 0">Dihitung dengan anggapan seluruh nilai produk hilang bila campuran bermasalah tetap disemprot.</p>
+    <div class="sim-only" style="margin-top:12px">
       <label class="lbl" for="faktor">Asumsi kerugian bila campuran bermasalah tetap disemprot: <b id="faktorVal">100%</b></label>
       <input type="range" id="faktor" min="0" max="100" step="5" value="100">
       <p class="small muted" style="margin:4px 0 0">Analisis sensitivitas: geser untuk melihat pengaruh asumsi terhadap estimasi. Penghematan duplikasi MoA tidak terpengaruh (produk memang tidak perlu dibeli).</p>
     </div>
-    <div class="tbl-wrap" style="margin-top:10px"><table id="sens"></table></div>
+    <div class="tbl-wrap sim-only" style="margin-top:10px"><table id="sens"></table></div>
   </section>
 
   <!-- 3. Panduan Aduk -->
@@ -169,24 +181,24 @@
     </div>
   </section>
 
-  <details>
+  <details class="sim-only">
     <summary>🔎 Jejak Inferensi (Forward Chaining)</summary>
     <div class="inner"><div class="trace" id="trace"></div></div>
   </details>
 
-  <details>
+  <details class="sim-only">
     <summary>📚 Basis Pengetahuan: 10 Produk</summary>
     <div class="inner tbl-wrap"><table id="kbProd"></table>
       <p class="small muted">Harga eceran berasal dari survei harga e-commerce dan toko pertanian di Lampung per Oktober 2026. Dosis kerja adalah satu nilai yang dipilih dari rentang dosis label; cocokkan kembali dengan label kemasan.</p></div>
   </details>
 
-  <details>
+  <details class="sim-only">
     <summary>📐 Basis Aturan (jika–maka)</summary>
     <div class="inner tbl-wrap"><table id="kbRule"></table>
       <p class="small muted">Aturan disusun dari literatur dan belum divalidasi melalui uji laboratorium. Untuk R3, pH larutan pupuk kalsium belum diukur.</p></div>
   </details>
 
-  <details>
+  <details class="sim-only">
     <summary>🧪 Verifikasi: uji 45 pasangan produk</summary>
     <div class="inner tbl-wrap"><p class="small muted" style="margin-top:0">Setiap kombinasi dua produk dijalankan pada mesin inferensi, lalu keluarannya dibandingkan dengan keluaran yang diharapkan menurut tabel keputusan.</p>
       <table id="ujiTbl"></table><p id="ujiRingkas" style="font-weight:700;margin-bottom:0"></p></div>
@@ -311,7 +323,24 @@ const EXPECT = {
 };
 
 /* ============================ STATE ============================ */
-const state = { vol:16, n:20, faktor:100, sel:new Set(['antracol','amistartop','agristik']) };
+/* Tampilan bawaan saat halaman dibuka: 'simulasi' (lengkap, untuk pengujian/penjurian)
+   atau 'petani' (sederhana, untuk dipakai di lahan). Bisa juga dipaksa lewat alamat:
+   ...?mode=petani atau ...?mode=simulasi. Pilihan terakhir diingat di peramban. */
+const DEFAULT_MODE = 'simulasi';
+function initialMode(){
+  const q = new URLSearchParams(location.search).get('mode');
+  if (q === 'petani' || q === 'simulasi') return q;
+  try { const m = localStorage.getItem('droplos-mode'); if (m === 'petani' || m === 'simulasi') return m; } catch {}
+  return DEFAULT_MODE;
+}
+const state = { vol:16, n:20, faktor:100, mode:initialMode(), sel:new Set(['antracol','amistartop','agristik']) };
+function applyMode(){
+  document.body.classList.toggle('mode-petani', state.mode === 'petani');
+  document.body.classList.toggle('mode-simulasi', state.mode === 'simulasi');
+  document.querySelectorAll('#modeSeg button').forEach(b => {
+    const on = b.dataset.m === state.mode; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+  });
+}
 const SCEN = {
   0:[], 1:['antracol','amistartop','agristik'], 2:['demolish','agrimec'],
   3:['calsib','curacron'], 4:['calsib','mkp'], 5:['kocide','gandasil'],
@@ -379,13 +408,14 @@ function renderProducts(){
       <div>
         <div class="pname">${esc(p.nama)}</div>
         <div class="pmeta">${esc(p.jenis)} · ${esc(p.bahan)}</div>
-        <div style="margin-top:4px"><span class="tag ${p.wales}">${p.wales}</span><span class="tag">${p.formulasi}</span>${p.moa.map(m=>`<span class="tag">${m}</span>`).join('')}</div>
+        <div class="sim-only" style="margin-top:4px"><span class="tag ${p.wales}">${p.wales}</span><span class="tag">${p.formulasi}</span>${p.moa.map(m=>`<span class="tag">${m}</span>`).join('')}</div>
       </div>
     </label>`).join('');
 }
 
 function render(){
   const A = audit();
+  const faktor = state.mode === 'petani' ? 100 : state.faktor;   // tampilan petani: asumsi 100%
   renderProducts();
 
   // ---- Status ----
@@ -405,7 +435,7 @@ function render(){
       <div class="t">${esc(r.judul(a,b))}</div>
       <p>${esc(r.pesan(a,b))}</p>
       <p class="sol">👉 ${esc(r.solusi(a,b))}</p>
-      <div class="src">Aturan ${r.id} · Sumber: ${esc(r.sumber)}</div>
+      <div class="src sim-only">Aturan ${r.id} · Sumber: ${esc(r.sumber)}</div>
     </div>`).join('');
 
   const has = A.fakta.length > 0;
@@ -418,12 +448,12 @@ function render(){
   const hematDup = [...A.elim].reduce((s,id) => s + biayaTangki(BY_ID[id]), 0);
   const nilaiRisiko = [...A.risiko].reduce((s,id) => s + biayaTangki(BY_ID[id]), 0);
   const dicegah = f => (hematDup + nilaiRisiko * f/100);
-  $('#faktorVal').textContent = state.faktor + '%';
+  $('#faktorVal').textContent = faktor + '%';
   $('#metrics').innerHTML = `
     <div class="metric"><div class="k">Biaya resep awal / tangki</div><div class="v">${rp(awal)}</div></div>
     <div class="metric"><div class="k">Hemat duplikasi / tangki</div><div class="v">${rp(hematDup)}</div></div>
-    <div class="metric"><div class="k">Nilai produk terselamatkan / tangki</div><div class="v">${rp(nilaiRisiko*state.faktor/100)}</div></div>
-    <div class="metric hl"><div class="k">Total dicegah (${state.n} tangki)</div><div class="v">${rp(dicegah(state.faktor)*state.n)}</div></div>`;
+    <div class="metric"><div class="k">Nilai produk terselamatkan / tangki</div><div class="v">${rp(nilaiRisiko*faktor/100)}</div></div>
+    <div class="metric hl"><div class="k">Total dicegah (${state.n} tangki)</div><div class="v">${rp(dicegah(faktor)*state.n)}</div></div>`;
   $('#sens').innerHTML = nilaiRisiko > 0 ? `
     <tr><th>Asumsi kerugian</th>${[25,50,75,100].map(f=>`<th class="n" style="text-align:right">${f}%</th>`).join('')}</tr>
     <tr><td>Dicegah / tangki</td>${[25,50,75,100].map(f=>`<td class="n">${rp(dicegah(f))}</td>`).join('')}</tr>
@@ -464,7 +494,7 @@ function render(){
     L.push('', '*Alasan:*');
     A.firings.forEach(({r,a,b}) => L.push(`- ${r.judul(a,b)}`));
   }
-  const tot = dicegah(state.faktor)*state.n;
+  const tot = dicegah(faktor)*state.n;
   if (tot > 0) L.push('', `Potensi uang terselamatkan: *${rp(tot)}* (${state.n} tangki)`);
   L.push('', '_Selalu cek label kemasan & pakai alat pelindung diri._');
   const waTxt = L.join('\n');
@@ -525,6 +555,12 @@ document.querySelector('.scen').addEventListener('click', e => {
   state.sel = new Set(SCEN[s]);
   render();
 });
+$('#modeSeg').addEventListener('click', e => {
+  const m = e.target.dataset.m; if (!m) return;
+  state.mode = m;
+  try { localStorage.setItem('droplos-mode', m); } catch {}
+  applyMode(); render();
+});
 $('#copyBtn').addEventListener('click', async () => {
   const txt = $('#waText').textContent, btn = $('#copyBtn');
   try { await navigator.clipboard.writeText(txt); }
@@ -533,6 +569,7 @@ $('#copyBtn').addEventListener('click', async () => {
   btn.textContent = 'Tersalin ✓'; setTimeout(() => btn.textContent = 'Salin teks', 1500);
 });
 
+applyMode();
 renderKB();
 renderUji();
 render();
