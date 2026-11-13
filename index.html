@@ -128,10 +128,10 @@
       <span class="small muted" style="align-self:center">Skenario uji:</span>
       <button class="chip" data-s="1">1 · Aman</button>
       <button class="chip" data-s="2">2 · Duplikasi MoA</button>
-      <button class="chip" data-s="3">3 · Ca + Fosfat</button>
+      <button class="chip" data-s="3">3 · Ca + Organofosfat</button>
       <button class="chip ghost" data-s="0">Kosongkan</button>
       <span class="small muted" style="align-self:center;margin-left:6px">Uji aturan lain:</span>
-      <button class="chip ghost" data-s="4">R3 · Ca + EC</button>
+      <button class="chip ghost" data-s="4">R2 · Ca + Fosfat</button>
       <button class="chip ghost" data-s="5">R4 · Tembaga + pupuk</button>
     </div>
     <div class="plist" id="plist"></div>
@@ -183,7 +183,7 @@
   <details>
     <summary>📐 Basis Aturan (jika–maka)</summary>
     <div class="inner tbl-wrap"><table id="kbRule"></table>
-      <p class="small muted">Aturan disusun dari literatur dan belum divalidasi melalui uji laboratorium. R3 adalah aturan kehati-hatian yang belum memiliki rujukan khusus.</p></div>
+      <p class="small muted">Aturan disusun dari literatur dan belum divalidasi melalui uji laboratorium. Untuk R3, pH larutan pupuk kalsium belum diukur.</p></div>
   </details>
 
   <details>
@@ -205,6 +205,7 @@
    dosis   : dosis anjuran per liter air (satuan ml atau g)
    kemasan : isi kemasan (ml/g), harga: harga eceran per kemasan (Rp)
    hargaOk : true bila harga sudah diverifikasi survei; false = estimasi
+   pekaBasa: true bila bahan aktif mudah terurai pada air basa (dipakai aturan R3)
    >>> PERIKSA ULANG dosis & harga dengan label resmi sebelum lomba <<<
    ===================================================================== */
 const PRODUCTS = [
@@ -219,7 +220,7 @@ const PRODUCTS = [
   { id:'amistartop',nama:'Amistartop 325 SC',jenis:'Fungisida Sistemik', bahan:'Azoksistrobin 200 g/l + Difenokonazol 125 g/l',
     rentang:'0,5–1 ml/L', aktif:['azoksistrobin','difenokonazol'], kategori:'pestisida', moa:['FRAC-11','FRAC-3'], formulasi:'SC', wales:'L', dosis:0.5, satuan:'ml', kemasan:100, harga:95000, hargaOk:false },
   { id:'curacron',  nama:'Curacron 500 EC', jenis:'Insektisida Kontak', bahan:'Profenofos 500 g/l',
-    rentang:'1–2,25 ml/L', aktif:['profenofos'], kategori:'pestisida', moa:['IRAC-1B'], formulasi:'EC', wales:'E', dosis:1.5, satuan:'ml', kemasan:100, harga:55000, hargaOk:false },
+    rentang:'1–2,25 ml/L', aktif:['profenofos'], golongan:'organofosfat', pekaBasa:true, kategori:'pestisida', moa:['IRAC-1B'], formulasi:'EC', wales:'E', dosis:1.5, satuan:'ml', kemasan:100, harga:55000, hargaOk:false },
   { id:'demolish',  nama:'Demolish 18 EC',  jenis:'Insektisida/Akarisida', bahan:'Abamektin 18 g/l',
     rentang:'0,5–2 ml/L', aktif:['abamektin'], kategori:'pestisida', moa:['IRAC-6'], formulasi:'EC', wales:'E', dosis:1, satuan:'ml', kemasan:100, harga:35000, hargaOk:true },
   { id:'kocide',    nama:'Kocide 54 WDG',   jenis:'Fungisida Tembaga', bahan:'Tembaga hidroksida 54%',
@@ -273,14 +274,14 @@ const RULES = [
     pisah:(a) => a, risiko:(a,b) => [a,b],
   },
   { id:'R3', tahap:2, level:'bad', jenis:'Inkompatibilitas Kimia',
-    jika:'Produk berkalsium dicampur dengan produk berformulasi EC',
-    maka:'Peringatan inkompatibilitas kimia (aturan kehati-hatian) → produk berkalsium disemprot terpisah',
-    dampak:'Diduga menurunkan efektivitas bahan aktif insektisida; belum didukung rujukan khusus untuk pasangan produk ini',
-    sumber:'Aturan kehati-hatian, perlu validasi',
-    when:(a,b) => !!a.kalsium && b.formulasi === 'EC',
-    judul:() => 'PERINGATAN KIMIA: KALSIUM + FORMULASI EC',
-    pesan:(a,b) => `Pupuk kalsium ${a.nama} diduga dapat menurunkan efektivitas ${b.nama} bila dicampur dalam satu tangki. Ini aturan kehati-hatian yang belum divalidasi lewat uji laboratorium.`,
-    solusi:(a,b) => `Sebaiknya semprot ${a.nama} dan ${b.nama} pada hari terpisah. Bila tetap ingin mencampur, lakukan uji toples lebih dulu dan ikuti label.`,
+    jika:'Produk berkalsium (bersifat basa) dicampur dengan insektisida yang peka air basa (organofosfat, misalnya profenofos)',
+    maka:'Peringatan bahaya kimia (hidrolisis alkali) → produk berkalsium disemprot terpisah',
+    dampak:'Air tangki yang basa mempercepat penguraian bahan aktif organofosfat sehingga efektivitas insektisida menurun',
+    sumber:'[3] Bultemeier dkk. (pH larutan belum diukur)',
+    when:(a,b) => !!a.kalsium && !!b.pekaBasa,
+    judul:() => 'BAHAYA KIMIA: HIDROLISIS ALKALI',
+    pesan:(a,b) => `Sifat basa dari kalsium pada ${a.nama} dapat merusak bahan aktif ${b.aktif.join(', ')} (${b.nama}) di dalam air tangki. Daya racunnya bisa melemah sehingga uang Anda terbuang.`,
+    solusi:(a,b) => `Semprot ${a.nama} dan ${b.nama} pada hari terpisah.`,
     pisah:(a) => a, risiko:(a,b) => [b],
   },
   { id:'R4', tahap:2, level:'bad', jenis:'Fitotoksisitas',
@@ -304,7 +305,7 @@ const RULES = [
 const EXPECT = {
   'agrimec+demolish':'R1',
   'mkp+calsib':'R2', 'calsib+gandasil':'R2',
-  'agrimec+calsib':'R3', 'curacron+calsib':'R3', 'demolish+calsib':'R3',
+  'curacron+calsib':'R3',
   'agrimec+kocide':'R4', 'mkp+kocide':'R4', 'curacron+kocide':'R4',
   'demolish+kocide':'R4', 'kocide+calsib':'R4', 'kocide+gandasil':'R4',
 };
@@ -313,7 +314,7 @@ const EXPECT = {
 const state = { vol:16, n:20, faktor:100, sel:new Set(['antracol','amistartop','agristik']) };
 const SCEN = {
   0:[], 1:['antracol','amistartop','agristik'], 2:['demolish','agrimec'],
-  3:['calsib','mkp'], 4:['calsib','demolish'], 5:['kocide','gandasil'],
+  3:['calsib','curacron'], 4:['calsib','mkp'], 5:['kocide','gandasil'],
 };
 
 /* ============================ UTIL ============================ */
@@ -331,7 +332,7 @@ function audit(sel = state.sel){
   const trace = [];
   trace.push(`FAKTA AWAL: tangki ${state.vol} L × ${state.n} tangki`);
   fakta.forEach(p => trace.push(`  • ${p.nama} | MoA=${p.moa.join('+')||'-'} | formulasi=${p.formulasi} | kode=${p.wales}` +
-    (p.kalsium?' | kalsium':'') + (p.fosfat?' | fosfat':'') + (p.tembaga?' | tembaga':'')));
+    (p.kalsium?' | kalsium':'') + (p.fosfat?' | fosfat':'') + (p.tembaga?' | tembaga':'') + (p.pekaBasa?' | peka basa':'')));
 
   const firings = [], elim = new Set(), pisah = new Set(), risiko = new Set();
 
@@ -476,7 +477,7 @@ function renderKB(){
     : 'Nutrisi' + (p.kalsium?' (kalsium)':p.fosfat?' (fosfat)':''));
   $('#kbProd').innerHTML = `<tr><th>No</th><th>Produk</th><th>Bahan aktif / kandungan</th><th>MoA / kategori</th><th>Form.</th><th>Kode</th><th>Rentang dosis label</th><th class="n" style="text-align:right">Dosis kerja</th><th class="n" style="text-align:right">Harga acuan</th></tr>` +
     PRODUCTS.map((p,i) => `<tr><td>${i+1}</td><td>${esc(p.nama)}<div class="small muted">${esc(p.jenis)}</div></td><td>${esc(p.bahan)}</td>
-      <td>${kat(p)}</td><td>${p.formulasi}</td><td><span class="tag ${p.wales}">${p.wales}</span></td>
+      <td>${kat(p)}${p.golongan?`<div class="small muted">${p.golongan}</div>`:''}</td><td>${p.formulasi}</td><td><span class="tag ${p.wales}">${p.wales}</span></td>
       <td>${p.rentang}</td><td class="n">${num(p.dosis)} ${p.satuan}/L</td><td class="n">${rp(p.harga)}${p.hargaOk?'':'*'}<div class="small muted">/${num(p.kemasan)} ${p.satuan}</div></td></tr>`).join('');
   $('#kbRule').innerHTML = `<tr><th>ID</th><th>Kondisi (JIKA)</th><th>Tindakan sistem (MAKA)</th><th>Dampak di lapangan</th><th>Sumber</th></tr>` +
     RULES.map(r => `<tr><td><b>${r.id}</b></td><td>${esc(r.jika)}</td><td>${esc(r.maka)}</td><td>${esc(r.dampak)}</td><td>${esc(r.sumber)}</td></tr>`).join('') +
